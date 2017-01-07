@@ -8,6 +8,13 @@
 
 import UIKit
 import AFNetworking
+import MBProgressHUD
+
+
+let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
+var url = NSURL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
+
+
 
 class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -20,8 +27,11 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.dataSource = self
         tableView.delegate = self
         
-        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = NSURL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
+        tableView.insertSubview(refreshControl, atIndex: 0)
+        
+        
         let request = NSURLRequest(URL: url!)
         let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration(), delegate: nil, delegateQueue: NSOperationQueue.mainQueue())
         let task:NSURLSessionDataTask = session.dataTaskWithRequest(request, completionHandler: {(dataOrNil, response, error) in
@@ -45,7 +55,9 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         // Dispose of any resources that can be recreated.
     }
     
-func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
+
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         if let movies = movies {
             return movies.count
         } else {
@@ -74,7 +86,44 @@ func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> In
         
         
         return cell
+      
+    }
+    
+    func loadDataFromNetwork(){
+        let myRequest = NSURLRequest(URL: url!)
+        let session = NSURLSession(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            delegate:nil,
+            delegateQueue:NSOperationQueue.mainQueue()
+        )
+        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
         
+        let task : NSURLSessionDataTask = session.dataTaskWithRequest(myRequest, completionHandler: {(data, response, error) in
+            
+            MBProgressHUD.hideHUDForView(self.view, animated: true)
+                                                                      
+        });
+        task.resume()
+    }
+
+        
+    
+    func refreshControlAction(refreshControl: UIRefreshControl) {
+
+        let myRequest = NSURLRequest(URL: url!)
+        let session = NSURLSession(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            delegate:nil,
+            delegateQueue:NSOperationQueue.mainQueue()
+        )
+        
+        let task : NSURLSessionDataTask = session.dataTaskWithRequest(myRequest, completionHandler: { (data, response, error) in
+            
+            self.tableView.reloadData()
+            refreshControl.endRefreshing()
+        });
+        
+        task.resume()
     }
 
     /*
