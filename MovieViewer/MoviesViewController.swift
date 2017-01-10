@@ -10,30 +10,29 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-var url = NSURL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
-
 class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
 
     @IBOutlet weak var tableView: UITableView!
-    
     @IBOutlet weak var movieSearchBar: UISearchBar!
-    
+
     var movies: [NSDictionary]?
     var filteredData: [NSDictionary]?
-    
+    var endpoint: String!
+    var url: NSURL?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         tableView.dataSource = self
         tableView.delegate = self
         movieSearchBar.delegate = self
         
-        
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
         tableView.insertSubview(refreshControl, atIndex: 0)
-
+        
+        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
+        url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
         let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration(), delegate: nil, delegateQueue: NSOperationQueue.mainQueue())
         let request = NSURLRequest(URL: url!)
         
@@ -53,9 +52,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             }
         });
         task.resume()
-        
-
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -69,9 +65,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         } else {
             return 0
         }
-        
-        
     }
+    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         let cell = tableView.dequeueReusableCellWithIdentifier("MovieCell", forIndexPath: indexPath) as! MovieCell
         let movie = filteredData![indexPath.row]
@@ -98,13 +93,9 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         cell.titleLabel.text = title
         cell.overviewLabel.text = overview
         
-        
         return cell
     }
    
-    
-    
-    
     func refreshControlAction(refreshControl: UIRefreshControl) {
 
         let myRequest = NSURLRequest(URL: url!)
@@ -146,14 +137,21 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     }
 
     
-    // MARK: - Navigation
+    //MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
          
-    //override func pirepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let cell = sender as! UITableViewCell
+        let indexPath = tableView.indexPathForCell(cell)
+        let movie = movies![indexPath!.row]
+        
+        let detailViewController = segue.destinationViewController as! DetailViewController
+        detailViewController.movie =  movie
+        
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
-    //}
+    }
 
  
         
