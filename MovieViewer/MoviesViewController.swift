@@ -27,6 +27,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.delegate = self
         movieSearchBar.delegate = self
         
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .Plain, target: nil, action: nil)
+        
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
         tableView.insertSubview(refreshControl, atIndex: 0)
@@ -45,7 +47,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             if let data = dataOrNil {
                 if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(data, options: []) as? NSDictionary {
                     
-                    self.movies = responseDictionary["results"] as! [NSDictionary]
+                    self.movies = responseDictionary["results"] as?[NSDictionary]
                     self.filteredData = self.movies
                     self.tableView.reloadData()
                 }
@@ -70,9 +72,10 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         let cell = tableView.dequeueReusableCellWithIdentifier("MovieCell", forIndexPath: indexPath) as! MovieCell
         let movie = filteredData![indexPath.row]
-        let title = movie["title"] as! String
         
-        let overview = movie["overview"] as! String
+        let title = movie["title"] as! String
+        let rating = movie["vote_average"] as! Double
+        let releasedDate = movie["release_date"] as! String
         
         if  let posterPath = movie["poster_path"] as? String {
             
@@ -91,10 +94,13 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         }
         
         cell.titleLabel.text = title
-        cell.overviewLabel.text = overview
+        cell.ratingLabel.text = String(rating)
+        cell.releasedDateLabel.text = releasedDate
         
         return cell
     }
+    
+    
    
     func refreshControlAction(refreshControl: UIRefreshControl) {
 
