@@ -17,6 +17,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
     var movies: [NSDictionary]?
     var filteredData: [NSDictionary]?
+    var favoriteMovie = [String:String]()
     var endpoint: String!
     var url: NSURL?
     
@@ -148,12 +149,21 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     // In a storyboard-based application, you will often want to do a little preparation before navigation
          
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let cell = sender as! UITableViewCell
-        let indexPath = tableView.indexPathForCell(cell)
-        let movie = movies![indexPath!.row]
-        
-        let detailViewController = segue.destinationViewController as! DetailViewController
-        detailViewController.movie =  movie
+        if let cell = sender as? UITableViewCell{
+            let indexPath = tableView.indexPathForCell(cell)
+            let movie = movies![indexPath!.row] as Dictionary
+            let indexPathInfo = indexPath!.row
+            let detailViewController = segue.destinationViewController as! DetailViewController
+            
+            favoriteMovie["title"]="posterPath"
+            
+            detailViewController.movie =  movie
+            detailViewController.indexPathInfo = indexPathInfo
+            detailViewController.favoriteMovie = favoriteMovie
+
+        } else {
+            let favoriteViewController = segue.destinationViewController as! FavoriteViewController
+        }
         
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.

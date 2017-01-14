@@ -8,6 +8,24 @@
 
 import UIKit
 
+/*
+func += <KeyType, ValueType> (inout left: Dictionary <KeyType, ValueType>, right:  Dictionary <KeyType,ValueType>) {
+    for (k, v) in right {
+        left[k] = v
+    }
+}
+ 
+
+extension Dictionary {
+    mutating func merge(dict: [Key: Value]){
+        for (k, v) in dict {
+            updateValue(v, forKey: k)
+        }
+    }
+}
+*/
+
+
 class DetailViewController: UIViewController {
 
     @IBOutlet weak var posterImageView: UIImageView!
@@ -15,8 +33,11 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var overviewLabel: UILabel!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var infoView: UIView!
+    @IBOutlet weak var addToFavoriteButton: UIButton!
     
     var movie: NSDictionary!
+    var indexPathInfo: Int!
+    var favoriteMovie: Dictionary<String,String>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,6 +121,55 @@ class DetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+   
+    
+
+@IBAction func addToFavorite(sender: UIButton) {
+        let title = movie["title"] as! String
+        let posterPath = movie["poster_path"] as! String
+    
+        favoriteMovie[title] = posterPath
+        print(favoriteMovie)
+    
+    
+    
+//    for(key,value) in favoriteMovie{
+//        print("Key:\(key) Value:\(value)")
+//    }
+        /*
+        var moviesDictionary = [String:AnyObject]()
+        for (key, value) in movie {
+            moviesDictionary[key as! String] = value
+        }
+        */
+    
+        /*
+
+        var temp = Dictionary<String, Any>()
+        temp["result"] = movie
+    
+        let dict = ["1" : "2"]
+    
+        if favoriteMovies == nil{
+            favoriteMovies = NSMutableDictionary(dictionary: temp, copyItems: true)
+
+            //global.favoriteMovies = NSMutableDictionary(dictionary: movie)
+        } else {
+            favoriteMovies!.addEntriesFromDictionary(temp)
+            print ("******************")
+            print (global.favoriteMovies)
+            favoriteMovies!.addEntriesFromDictionary(dict)
+            print ("-------------------")
+            print (global.favoriteMovies)
+        
+        }
+        */
+        
+        //global.favoriteMovies += moviesDictionary
+ 
+
+    
+    }
 
     /*
     // MARK: - Navigation
@@ -112,3 +182,12 @@ class DetailViewController: UIViewController {
     */
 
 }
+
+
+
+
+
+
+
+
+
