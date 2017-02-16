@@ -59,10 +59,10 @@ class DetailViewController: UIViewController {
             let smallImageUrl = smallImageBaseUrl + posterPath
             let largeImageUrl = largeImageBaseUrl + posterPath
             
-            let smallImageRequest = NSURLRequest(URL: NSURL(string: smallImageUrl)!)
-            let largeImageRequest = NSURLRequest(URL: NSURL(string: largeImageUrl)!)
+            let smallImageRequest = URLRequest(url: URL(string: smallImageUrl)!)
+            let largeImageRequest = URLRequest(url: URL(string: largeImageUrl)!)
             
-            posterImageView.setImageWithURLRequest(
+            posterImageView.setImageWith(
                 smallImageRequest,
                 placeholderImage: nil,
                 success: { (smallImageRequest, smallImageResponse, smallImage) -> Void in
@@ -72,7 +72,7 @@ class DetailViewController: UIViewController {
                     self.posterImageView.alpha = 0.0
                     self.posterImageView.image = smallImage;
                     
-                    UIView.animateWithDuration(0.3, animations: { () -> Void in
+                    UIView.animate(withDuration: 0.3, animations: { () -> Void in
                         
                         self.posterImageView.alpha = 1.0
                         
@@ -80,7 +80,7 @@ class DetailViewController: UIViewController {
                             
                             // The AFNetworking ImageView Category only allows one request to be sent at a time
                             // per ImageView. This code must be in the completion block.
-                            self.posterImageView.setImageWithURLRequest(
+                            self.posterImageView.setImageWith(
                                 largeImageRequest,
                                 placeholderImage: smallImage,
                                 success: { (largeImageRequest, largeImageResponse, largeImage) -> Void in
@@ -124,7 +124,7 @@ class DetailViewController: UIViewController {
    
     
 
-@IBAction func addToFavorite(sender: UIButton) {
+@IBAction func addToFavorite(_ sender: UIButton) {
         let title = movie["title"] as! String
         let posterPath = movie["poster_path"] as! String
     

@@ -19,7 +19,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     var filteredData: [NSDictionary]?
     var favoriteMovie = [String:String]()
     var endpoint: String!
-    var url: NSURL?
+    var url: URL?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,25 +28,26 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.delegate = self
         movieSearchBar.delegate = self
         
-        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .Plain, target: nil, action: nil)
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: nil, action: nil)
         
         let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
-        tableView.insertSubview(refreshControl, atIndex: 0)
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
-        let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration(), delegate: nil, delegateQueue: NSOperationQueue.mainQueue())
-        let request = NSURLRequest(URL: url!)
+        url = URL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
+        print (url)
+        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: OperationQueue.main)
+        let request = URLRequest(url:url!)
         
-        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        MBProgressHUD.showAdded(to: self.view, animated: true)
         
-        let task:NSURLSessionDataTask = session.dataTaskWithRequest(request, completionHandler: {(dataOrNil, response, error) in
+        let task:URLSessionDataTask = session.dataTask(with: request, completionHandler: {(dataOrNil, response, error) in
            
-            MBProgressHUD.hideHUDForView(self.view, animated: true)
+            MBProgressHUD.hide(for: self.view, animated: true)
             
             if let data = dataOrNil {
-                if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(data, options: []) as? NSDictionary {
+                if let responseDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
                     
                     self.movies = responseDictionary["results"] as?[NSDictionary]
                     self.filteredData = self.movies
@@ -62,7 +63,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         // Dispose of any resources that can be recreated.
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         if let filteredMovies  = filteredData {
             return filteredMovies.count
         } else {
@@ -70,8 +71,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         }
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
-        let cell = tableView.dequeueReusableCellWithIdentifier("MovieCell", forIndexPath: indexPath) as! MovieCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
         let movie = filteredData![indexPath.row]
         
         let title = movie["title"] as! String
@@ -82,11 +83,11 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             
             let baseURL = "http://image.tmdb.org/t/p/w500"
             
-            let imageURL = NSURL(string: baseURL + posterPath)
+            let imageURL = URL(string: baseURL + posterPath)
             
-            cell.posterView.setImageWithURL(imageURL!)
+            cell.posterView.setImageWith(imageURL!)
             cell.posterView.alpha = 0
-            UIView.animateWithDuration(1, delay: 0, options: UIViewAnimationOptions.TransitionCurlUp, animations: { () -> Void in
+            UIView.animate(withDuration: 1, delay: 0, options: UIViewAnimationOptions.transitionCurlUp, animations: { () -> Void in
                 cell.posterView.alpha = 1
                 }, completion: nil)
             
@@ -103,16 +104,16 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     
     
    
-    func refreshControlAction(refreshControl: UIRefreshControl) {
+    func refreshControlAction(_ refreshControl: UIRefreshControl) {
 
-        let myRequest = NSURLRequest(URL: url!)
-        let session = NSURLSession(
-            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+        let myRequest = URLRequest(url: url!)
+        let session = URLSession(
+            configuration: URLSessionConfiguration.default,
             delegate:nil,
-            delegateQueue:NSOperationQueue.mainQueue()
+            delegateQueue:OperationQueue.main
         )
         
-        let task : NSURLSessionDataTask = session.dataTaskWithRequest(myRequest, completionHandler: { (data, response, error) in
+        let task : URLSessionDataTask = session.dataTask(with: myRequest, completionHandler: { (data, response, error) in
             
             self.tableView.reloadData()
             refreshControl.endRefreshing()
@@ -121,11 +122,11 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         task.resume()
     }
     
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         filteredData = searchText.isEmpty ? movies : movies!.filter({(movie: NSDictionary) -> Bool in
             if let title = movie["title"] as? String {
-                return title.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
+                return title.range(of: searchText, options: .caseInsensitive) != nil
             }
             return false
         })
@@ -133,11 +134,11 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.reloadData()
     }
     
-    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         self.movieSearchBar.showsCancelButton = true
     }
     
-    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         movieSearchBar.showsCancelButton = false
         movieSearchBar.text = ""
         searchBar.resignFirstResponder()
@@ -148,21 +149,21 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
          
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let cell = sender as? UITableViewCell{
-            let indexPath = tableView.indexPathForCell(cell)
+            let indexPath = tableView.indexPath(for: cell)
             let movie = movies![indexPath!.row] as Dictionary
             let indexPathInfo = indexPath!.row
-            let detailViewController = segue.destinationViewController as! DetailViewController
+            let detailViewController = segue.destination as! DetailViewController
             
             favoriteMovie["title"]="posterPath"
             
-            detailViewController.movie =  movie
+            detailViewController.movie =  movie as NSDictionary!
             detailViewController.indexPathInfo = indexPathInfo
             detailViewController.favoriteMovie = favoriteMovie
 
         } else {
-            let favoriteViewController = segue.destinationViewController as! FavoriteViewController
+            let favoriteViewController = segue.destination as! FavoriteViewController
         }
         
         // Get the new view controller using segue.destinationViewController.
